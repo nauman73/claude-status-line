@@ -74,6 +74,14 @@ The JSON payload includes fields like:
 }
 ```
 
+Values are extracted using bash builtins only — no subshells, no external processes:
+
+```bash
+# No jq needed — bash regex extracts values directly
+[[ $input =~ \"display_name\"[[:space:]]*:[[:space:]]*\"([^\"]*)\" ]] && model="${BASH_REMATCH[1]}"
+[[ $input =~ \"remaining_percentage\"[[:space:]]*:[[:space:]]*([0-9]+) ]] && remaining="${BASH_REMATCH[1]}"
+```
+
 ## 📊 Performance
 
 The script is optimized to minimize process spawns, which matters most on Windows where fork overhead is higher.
