@@ -119,6 +119,28 @@ The environment label adapts automatically. On Windows it uses `$MSYSTEM`, on ot
 - Colors are also disabled when `TERM=dumb`
 - When colors are off, all segments still render as plain text
 
+## ✂️ Path Truncation
+
+Long working directory paths are automatically truncated to keep the status line compact. Two constants at the top of the script control this behavior:
+
+```bash
+MAX_CWD_LENGTH=40   # Max display length for cwd (0 = no truncation)
+CWD_TRUNC_POS=20    # Characters to keep from the start before the ellipsis
+```
+
+| Setting | Effect |
+|---|---|
+| `MAX_CWD_LENGTH=40` | Paths longer than 40 characters are truncated |
+| `MAX_CWD_LENGTH=0` | Truncation disabled — full path always shown |
+| `CWD_TRUNC_POS=20` | Keep 20 characters from the start, remainder from the end |
+
+**Example** with defaults (40/20):
+```
+/home/user/very/deep…ture/src/components
+```
+
+The truncation uses bash builtins only and silently skips if the constants produce invalid values.
+
 ## 📝 Notes
 
 - On startup, only user@host, environment, cwd, git branch, and model appear. The percentages and session ID show up after the first prompt.

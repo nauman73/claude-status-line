@@ -2,6 +2,9 @@
 # Claude Code status line — styled after Git for Windows PS1
 # Optimized: bash builtins for JSON parsing, minimal subshells
 
+MAX_CWD_LENGTH=40   # Max display length for cwd (0 = no truncation)
+CWD_TRUNC_POS=20    # Characters to keep from the start before the ellipsis
+
 input=$(cat)
 [ -z "$input" ] && exit 0
 
@@ -14,6 +17,14 @@ input=$(cat)
 [[ $input =~ \"session_id\"[[:space:]]*:[[:space:]]*\"([^\"]*)\" ]] && session_id="${BASH_REMATCH[1]}"
 
 : "${cwd:=$(pwd)}"
+
+# Truncate long paths: keep head + … + tail
+if (( MAX_CWD_LENGTH > 0 && ${#cwd} > MAX_CWD_LENGTH )); then
+  (( CWD_TRUNC_POS < 0 )) && CWD_TRUNC_POS=0
+  (( CWD_TRUNC_POS >= MAX_CWD_LENGTH )) && CWD_TRUNC_POS=$(( MAX_CWD_LENGTH - 1 ))
+  _tail=$(( MAX_CWD_LENGTH - CWD_TRUNC_POS - 1 ))
+  (( _tail > 0 )) && cwd="${cwd::CWD_TRUNC_POS}…${cwd: -_tail}"
+fi
 
 # Git branch (1-2 git calls max)
 git_branch=""
