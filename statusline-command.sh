@@ -18,20 +18,20 @@ input=$(cat)
 
 : "${cwd:=$(pwd)}"
 
+# Git branch (1-2 git calls max) — must run before cwd truncation
+git_branch=""
+if branch=$(git -C "$cwd" --no-optional-locks symbolic-ref --short HEAD 2>/dev/null); then
+  git_branch=" ($branch)"
+elif short=$(git -C "$cwd" --no-optional-locks rev-parse --short HEAD 2>/dev/null); then
+  git_branch=" ($short)"
+fi
+
 # Truncate long paths: keep head + … + tail
 if (( MAX_CWD_LENGTH > 0 && ${#cwd} > MAX_CWD_LENGTH )); then
   (( CWD_TRUNC_POS < 0 )) && CWD_TRUNC_POS=0
   (( CWD_TRUNC_POS >= MAX_CWD_LENGTH )) && CWD_TRUNC_POS=$(( MAX_CWD_LENGTH - 1 ))
   _tail=$(( MAX_CWD_LENGTH - CWD_TRUNC_POS - 1 ))
   (( _tail > 0 )) && cwd="${cwd::CWD_TRUNC_POS}…${cwd: -_tail}"
-fi
-
-# Git branch (1-2 git calls max)
-git_branch=""
-if branch=$(git -C "$cwd" --no-optional-locks symbolic-ref --short HEAD 2>/dev/null); then
-  git_branch=" ($branch)"
-elif short=$(git -C "$cwd" --no-optional-locks rev-parse --short HEAD 2>/dev/null); then
-  git_branch=" ($short)"
 fi
 
 # Identity from env (no subshell needed)
